@@ -1,6 +1,8 @@
 package logger
 
 import (
+	"io"
+	"log"
 	"os"
 	"sync"
 	"time"
@@ -22,7 +24,7 @@ func Init(cfg Config) {
 	syncInit.Do(func() {
 		config = cfg
 		logger = &logrus.Logger{
-			Out:          os.Stderr,
+			Out:          getOutput(cfg),
 			Hooks:        make(logrus.LevelHooks),
 			Formatter:    getFormatter(cfg),
 			ReportCaller: false,
@@ -30,6 +32,17 @@ func Init(cfg Config) {
 			ExitFunc:     os.Exit,
 		}
 	})
+}
+
+func getOutput(cfg Config) io.Writer {
+	if cfg.OutputFile == "" {
+		return os.Stderr
+	}
+	file, err := os.OpenFile(cfg.OutputFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatal("invalid output file")
+	}
+	return file
 }
 
 func getFormatter(cfg Config) logrus.Formatter {

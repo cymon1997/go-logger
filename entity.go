@@ -17,6 +17,8 @@ const (
 )
 
 type Config struct {
+	// OutputFile (optional) output file path. Default os.StdErr
+	OutputFile string
 	// Format json or text. Default text
 	Format Format
 	// Level threshold log shown
